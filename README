@@ -1,6 +1,8 @@
 ofxVoronoiGL is an openFrameworks addon for creating generalized 2D voronoi diagrams by drawing via OpenGL. It is based on Hoff et. al.’s paper (http://dl.acm.org/citation.cfm?id=311567) with some own modifications to be useful as a preprocessing for skeletonization of silhouettes. 
 Check out the example Video: http://www.spta.de?p=220
 
-The addon was developed in late 2010 but is now ported to of007. examples are comming soon.
+The addon was developed in late 2010 but is now ported to of007. Try out the small example. Feedback is welcome.
 
 In addition to openFrameworks no further libraries are needed.
+
+At the moment there is NO DCEL like data structure or functionality to work with the resulting voronoi diagram. So you can see the results but cant simply work with them. 
