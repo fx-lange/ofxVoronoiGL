@@ -51,12 +51,9 @@ public:
 		fbo.draw(x,y);
 	}
 
-	void drawFBOImg(int x,int y){
-		fboImage.draw(x,y);
-	}
-
-	unsigned char * getFBOPixels(){//TODO use fbo.readPixels... => refactor update
-		return fboImage.getPixels();
+	unsigned char * getFBOPixels(){
+		fbo.readToPixels(pixels);
+		return pixels.getPixels();
 	}
 
 	void setPoint(int x,int y);
@@ -68,11 +65,11 @@ public:
 	}
 
 	float alpha;
-	bool drawPoly,perFeatureV,skeleton,drawCenters;
+	bool drawPoly,perFeatureV,skeleton,drawCenters;//TODO check which is still used - rename!
 
 protected:
 	ofFbo fbo;
-	ofImage fboImage;
+	ofPixels pixels;
 	ofEasyCam cam;
 
 	std::vector<ofxVoronoiCell> points;

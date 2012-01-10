@@ -6,7 +6,6 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	error = _error;
 
 	fbo.allocate(width,height,GL_RGB,1);
-	fboImage.allocate(width,height,OF_IMAGE_COLOR);
 
 	R = sqrt(width*width + height*height);
 	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
@@ -25,16 +24,8 @@ void ofxVoronoiGL::update(){
 	createVoronoi();
 	cam.end();
 	fbo.end();
-
-	//preDraw to be able to use opencv methods
-	//TODO performance bottleneck - try readPixels in an extra function
-	ofSetColor(255,255,255);
-	fbo.draw(0,0);
-	fbo.getTextureReference();
-	fboImage.grabScreen(0,0,width,height);
-	ofFill();
-	ofRect(0,0,width,height);
 }
+
 void ofxVoronoiGL::setPoint(int x,int y){
 	 points.push_back(ofxVoronoiCell(x,y,SPTAColor()));
 }
