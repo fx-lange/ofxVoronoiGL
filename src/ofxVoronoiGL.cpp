@@ -14,14 +14,31 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	alphaUse = 360.f / (float)steps;
 
 	cam.enableOrtho();
+	cam.move(0,0,10);
 }
 
+void ofxVoronoiGL::setPoint(int x,int y){
+	 points.push_back(VoronoiCell(x,y,SPTAColor()));
+}
+
+void ofxVoronoiGL::setPoint(ofPoint & p){
+	setPoint(p.x,p.y);
+}
+
+void ofxVoronoiGL::setPolygon(std::vector<ofPoint> & points){
+	std::vector<VoronoiCell> cells;
+	std::vector<ofPoint>::iterator pointIt;
+	for(pointIt = points.begin(); pointIt != points.end();pointIt++){
+		ofPoint & p = *pointIt;
+		cells.push_back(VoronoiCell(p.x,p.y,SPTAColor()));
+	}
+	polygons.push_back(cells);
+}
 
 void ofxVoronoiGL::update(){
-//	fbo.clear();//TODO hier stand ma clear
 	fbo.begin();
-	ofClear(0);
 	cam.begin();
+	ofClear(0);
 	createVoronoi();
 	cam.end();
 	fbo.end();
@@ -35,21 +52,6 @@ void ofxVoronoiGL::clear(){
         fbo.end();
 	}
 
-void ofxVoronoiGL::setPoint(int x,int y){
-	 points.push_back(VoronoiCell(x,y,SPTAColor()));
-}
-void ofxVoronoiGL::setPoint(ofPoint & p){
-	setPoint(p.x,p.y);
-}
-void ofxVoronoiGL::setPolygon(std::vector<ofPoint> & points){
-	std::vector<VoronoiCell> cells;
-	std::vector<ofPoint>::iterator pointIt;
-	for(pointIt = points.begin(); pointIt != points.end();pointIt++){
-		ofPoint & p = *pointIt;
-		cells.push_back(VoronoiCell(p.x,p.y,SPTAColor()));
-	}
-	polygons.push_back(cells);
-}
 
 void ofxVoronoiGL::drawOnScreen(int x,int y){
 	ofPushMatrix();

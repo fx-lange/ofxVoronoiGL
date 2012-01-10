@@ -69,7 +69,8 @@ public:
 protected:
 	ofFbo fbo;
 	ofPixels pixels;
-	ofEasyCam cam;
+
+	ofCamera cam;
 
 	std::vector<VoronoiCell> points;
 	std::vector<std::vector<VoronoiCell> > polygons;
