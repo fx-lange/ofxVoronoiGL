@@ -23,9 +23,9 @@ public:
      }
 };
 
-class ofxVoronoiCell{
+class VoronoiCell{
 public:
-    ofxVoronoiCell(int _x, int _y, SPTAColor _color){
+    VoronoiCell(int _x, int _y, SPTAColor _color){
         x = _x;
         y = _y;
         color = _color;
@@ -51,18 +51,17 @@ public:
 		fbo.draw(x,y);
 	}
 
+	//Attention, possible loss of Performance when used! //TODO single warning when used first!
 	unsigned char * getFBOPixels(){
 		fbo.readToPixels(pixels);
 		return pixels.getPixels();
 	}
 
+	void clear();
+
 	void setPoint(int x,int y);
 	void setPoint(ofPoint & p);
 	void setPolygon(std::vector<ofPoint> & points);
-	void clear(){
-        points.clear();
-        polygons.clear();
-	}
 
 	float alpha;
 	bool drawPoly,perFeatureV,skeleton,drawCenters;//TODO check which is still used - rename!
@@ -72,8 +71,8 @@ protected:
 	ofPixels pixels;
 	ofEasyCam cam;
 
-	std::vector<ofxVoronoiCell> points;
-	std::vector<std::vector<ofxVoronoiCell> > polygons;
+	std::vector<VoronoiCell> points;
+	std::vector<std::vector<VoronoiCell> > polygons;
 
 	float width,height;
 	float alphaUse, R, error;
@@ -83,9 +82,9 @@ protected:
 	void createVoronoi();
 
 	void drawCone(int x, int y, ofColor& color);
-	void drawCone(ofxVoronoiCell p, ofColor& color){
+	void drawCone(VoronoiCell p, ofColor& color){
 		drawCone(p.x,p.y,color);
 	}
-	void drawTent(ofxVoronoiCell p1, ofxVoronoiCell p2, ofColor& color);
-	void drawPolygon(std::vector<ofxVoronoiCell> & poly);
+	void drawTent(VoronoiCell p1, VoronoiCell p2, ofColor& color);
+	void drawPolygon(std::vector<VoronoiCell> & poly);
 };

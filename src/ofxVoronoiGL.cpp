@@ -20,24 +20,33 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 void ofxVoronoiGL::update(){
 //	fbo.clear();//TODO hier stand ma clear
 	fbo.begin();
+	ofClear(0);
 	cam.begin();
 	createVoronoi();
 	cam.end();
 	fbo.end();
 }
 
+void ofxVoronoiGL::clear(){
+        points.clear();
+        polygons.clear();
+        fbo.begin();
+        ofClear(0);
+        fbo.end();
+	}
+
 void ofxVoronoiGL::setPoint(int x,int y){
-	 points.push_back(ofxVoronoiCell(x,y,SPTAColor()));
+	 points.push_back(VoronoiCell(x,y,SPTAColor()));
 }
 void ofxVoronoiGL::setPoint(ofPoint & p){
 	setPoint(p.x,p.y);
 }
 void ofxVoronoiGL::setPolygon(std::vector<ofPoint> & points){
-	std::vector<ofxVoronoiCell> cells;
+	std::vector<VoronoiCell> cells;
 	std::vector<ofPoint>::iterator pointIt;
 	for(pointIt = points.begin(); pointIt != points.end();pointIt++){
 		ofPoint & p = *pointIt;
-		cells.push_back(ofxVoronoiCell(p.x,p.y,SPTAColor()));
+		cells.push_back(VoronoiCell(p.x,p.y,SPTAColor()));
 	}
 	polygons.push_back(cells);
 }
@@ -54,16 +63,16 @@ void ofxVoronoiGL::createVoronoi(){
 		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
 		//draw points
-		std::vector<ofxVoronoiCell>::iterator pointIt;
+		std::vector<VoronoiCell>::iterator pointIt;
 		for(pointIt = points.begin(); pointIt!=points.end();pointIt++){
-			ofxVoronoiCell& p = *pointIt;
+			VoronoiCell& p = *pointIt;
 			drawCone(p,p.color);
 		}
 
 		//draw polygons
-		std::vector<std::vector<ofxVoronoiCell> >::iterator polyIt;
+		std::vector<std::vector<VoronoiCell> >::iterator polyIt;
 		for(polyIt = polygons.begin();polyIt!=polygons.end();polyIt++){
-			std::vector<ofxVoronoiCell>& poly = *polyIt;
+			std::vector<VoronoiCell>& poly = *polyIt;
 			drawPolygon(poly);
 		}
 
@@ -97,22 +106,22 @@ void ofxVoronoiGL::drawCone(int peakX, int peakY, ofColor &color){
 
 }
 
-void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCell> & poly){
-    std::vector<ofxVoronoiCell>::iterator pointIt;
-    std::vector<ofxVoronoiCell>::iterator pointIt2;
-    std::vector<ofxVoronoiCell>::iterator pointIt3;
+void ofxVoronoiGL::drawPolygon(std::vector<VoronoiCell> & poly){
+    std::vector<VoronoiCell>::iterator pointIt;
+    std::vector<VoronoiCell>::iterator pointIt2;
+    std::vector<VoronoiCell>::iterator pointIt3;
 
     //spezial cases
     if(poly.size()<3){
         if(poly.size() == 1){
             pointIt = poly.begin();
-            ofxVoronoiCell& p = *pointIt;
+            VoronoiCell& p = *pointIt;
             drawCone(p,p.color);
         }else if(poly.size() == 2){
             pointIt = poly.begin();
             pointIt2 = poly.begin();
-            ofxVoronoiCell& p1 = *pointIt;
-            ofxVoronoiCell& p2 = *pointIt2;
+            VoronoiCell& p1 = *pointIt;
+            VoronoiCell& p2 = *pointIt2;
             drawCone(p1,p1.color);
             drawCone(p2,p1.color);
             drawTent(p1,p2,p1.color);
@@ -137,9 +146,9 @@ void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCell> & poly){
             end = true;
         }
 
-        ofxVoronoiCell& p1 = *pointIt;
-        ofxVoronoiCell& p2 = *pointIt2;
-        ofxVoronoiCell& p3 = *pointIt3;
+        VoronoiCell& p1 = *pointIt;
+        VoronoiCell& p2 = *pointIt2;
+        VoronoiCell& p3 = *pointIt3;
 
         ofVec2f v1 = ofVec2f(p1.x-p2.x,p1.y-p2.y);
         ofVec2f v2 = ofVec2f(p2.x-p3.x,p2.y-p3.y);
@@ -161,7 +170,7 @@ void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCell> & poly){
     }
 }
 
-void ofxVoronoiGL::drawTent(ofxVoronoiCell p1, ofxVoronoiCell p2, ofColor &color){
+void ofxVoronoiGL::drawTent(VoronoiCell p1, VoronoiCell p2, ofColor &color){
     //vector between p1 and p2 => p1-p2
     ofPoint p1p2 = ofPoint(p1.x-p2.x,p1.y-p2.y);
     ofVec2f norm1 = ofVec2f(-p1p2.y,p1p2.x);
