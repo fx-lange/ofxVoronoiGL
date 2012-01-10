@@ -1,23 +1,40 @@
-#include "ofxVectorMath.h"
 #include "ofxOpenCv.h"
-#include "ofTypesSPTA.h"
 
 #pragma once
 
-
-class ofxVoronoiCellFx{
+class SPTAColor : public ofColor{
 public:
-    ofxVoronoiCellFx(int _x, int _y, ofColorSPTA _color){
+	SPTAColor() :ofColor() {
+		randomColor();
+		a = 255;
+	}
+
+	SPTAColor(int _r,int _g, int _b){
+         r = _r;
+         g = _g;
+         b = _b;
+         a = 255;
+     }
+
+	void randomColor(){
+     	r = ofRandom(0,255);
+     	g = ofRandom(0,255);
+     	b = ofRandom(0,255);
+     }
+};
+
+class ofxVoronoiCell{
+public:
+    ofxVoronoiCell(int _x, int _y, SPTAColor _color){
         x = _x;
         y = _y;
         color = _color;
     }
-    ofColorSPTA color;
+    SPTAColor color;
     int x,y;
 };
 
 class ofxVoronoiGL{
-
 public:
 	ofxVoronoiGL(){}
 	ofxVoronoiGL(float width, float height, float error = 1.0f){
@@ -28,7 +45,7 @@ public:
 
 	void update();
 
-	void drawDirectOnScreen(int x=0,int y=0);
+	void drawOnScreen(int x=0,int y=0);
 
 	void drawFBOOnScreen(int x,int y){
 		fbo.draw(x,y);
@@ -38,7 +55,7 @@ public:
 		fboImage.draw(x,y);
 	}
 
-	unsigned char * getFBOPixels(){
+	unsigned char * getFBOPixels(){//TODO use fbo.readPixels... => refactor update
 		return fboImage.getPixels();
 	}
 
@@ -56,9 +73,10 @@ public:
 protected:
 	ofFbo fbo;
 	ofImage fboImage;
+	ofEasyCam cam;
 
-	std::vector<ofxVoronoiCellFx> points;
-	std::vector<std::vector<ofxVoronoiCellFx> > polygons;
+	std::vector<ofxVoronoiCell> points;
+	std::vector<std::vector<ofxVoronoiCell> > polygons;
 
 	float width,height;
 	float alphaUse, R, error;
@@ -68,9 +86,9 @@ protected:
 	void createVoronoi();
 
 	void drawCone(int x, int y, ofColor& color);
-	void drawCone(ofxVoronoiCellFx p, ofColor& color){
+	void drawCone(ofxVoronoiCell p, ofColor& color){
 		drawCone(p.x,p.y,color);
 	}
-	void drawTent(ofxVoronoiCellFx p1, ofxVoronoiCellFx p2, ofColor& color);
-	void drawPolygon(std::vector<ofxVoronoiCellFx> & poly);
+	void drawTent(ofxVoronoiCell p1, ofxVoronoiCell p2, ofColor& color);
+	void drawPolygon(std::vector<ofxVoronoiCell> & poly);
 };

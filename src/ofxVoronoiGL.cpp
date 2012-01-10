@@ -9,43 +9,49 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	fboImage.allocate(width,height,OF_IMAGE_COLOR);
 
 	R = sqrt(width*width + height*height);
-	//FXTODO musst be calculate by 2cos⁽⁻¹)(R-E / R)
+	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
 	alpha = 3;
 	steps = (int)(360.f / alpha)+1;
 	alphaUse = 360.f / (float)steps;
+
+	cam.enableOrtho();
 }
 
 
 void ofxVoronoiGL::update(){
 //	fbo.clear();//TODO hier stand ma clear
 	fbo.begin();
+	cam.begin();
 	createVoronoi();
+	cam.end();
 	fbo.end();
 
 	//preDraw to be able to use opencv methods
+	//TODO performance bottleneck - try readPixels in an extra function
 	ofSetColor(255,255,255);
 	fbo.draw(0,0);
+	fbo.getTextureReference();
 	fboImage.grabScreen(0,0,width,height);
 	ofFill();
 	ofRect(0,0,width,height);
 }
 void ofxVoronoiGL::setPoint(int x,int y){
-	 points.push_back(ofxVoronoiCellFx(x,y,ofColorSPTA()));
+	 points.push_back(ofxVoronoiCell(x,y,SPTAColor()));
 }
 void ofxVoronoiGL::setPoint(ofPoint & p){
 	setPoint(p.x,p.y);
 }
 void ofxVoronoiGL::setPolygon(std::vector<ofPoint> & points){
-	std::vector<ofxVoronoiCellFx> cells;
+	std::vector<ofxVoronoiCell> cells;
 	std::vector<ofPoint>::iterator pointIt;
 	for(pointIt = points.begin(); pointIt != points.end();pointIt++){
 		ofPoint & p = *pointIt;
-		cells.push_back(ofxVoronoiCellFx(p.x,p.y,ofColorSPTA()));
+		cells.push_back(ofxVoronoiCell(p.x,p.y,SPTAColor()));
 	}
 	polygons.push_back(cells);
 }
 
-void ofxVoronoiGL::drawDirectOnScreen(int x,int y){
+void ofxVoronoiGL::drawOnScreen(int x,int y){
 	ofPushMatrix();
 	ofTranslate(x,y);
 	createVoronoi();
@@ -57,20 +63,20 @@ void ofxVoronoiGL::createVoronoi(){
 		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
 		//draw points
-		std::vector<ofxVoronoiCellFx>::iterator pointIt;
+		std::vector<ofxVoronoiCell>::iterator pointIt;
 		for(pointIt = points.begin(); pointIt!=points.end();pointIt++){
-			ofxVoronoiCellFx& p = *pointIt;
+			ofxVoronoiCell& p = *pointIt;
 			drawCone(p,p.color);
 		}
 
 		//draw polygons
-		std::vector<std::vector<ofxVoronoiCellFx> >::iterator polyIt;
+		std::vector<std::vector<ofxVoronoiCell> >::iterator polyIt;
 		for(polyIt = polygons.begin();polyIt!=polygons.end();polyIt++){
-			std::vector<ofxVoronoiCellFx>& poly = *polyIt;
+			std::vector<ofxVoronoiCell>& poly = *polyIt;
 			drawPolygon(poly);
 		}
 
-		glDisable(GL_DEPTH_TEST); //FXTODO instead of enable and disable -> popStyle
+		glDisable(GL_DEPTH_TEST); //REVISIT instead of enable and disable -> popStyle
 	}
 
 void ofxVoronoiGL::drawCone(int peakX, int peakY, ofColor &color){
@@ -100,22 +106,22 @@ void ofxVoronoiGL::drawCone(int peakX, int peakY, ofColor &color){
 
 }
 
-void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCellFx> & poly){
-    std::vector<ofxVoronoiCellFx>::iterator pointIt;
-    std::vector<ofxVoronoiCellFx>::iterator pointIt2;
-    std::vector<ofxVoronoiCellFx>::iterator pointIt3;
+void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCell> & poly){
+    std::vector<ofxVoronoiCell>::iterator pointIt;
+    std::vector<ofxVoronoiCell>::iterator pointIt2;
+    std::vector<ofxVoronoiCell>::iterator pointIt3;
 
-    //Sonderfälle
+    //spezial cases
     if(poly.size()<3){
         if(poly.size() == 1){
             pointIt = poly.begin();
-            ofxVoronoiCellFx& p = *pointIt;
+            ofxVoronoiCell& p = *pointIt;
             drawCone(p,p.color);
         }else if(poly.size() == 2){
             pointIt = poly.begin();
             pointIt2 = poly.begin();
-            ofxVoronoiCellFx& p1 = *pointIt;
-            ofxVoronoiCellFx& p2 = *pointIt2;
+            ofxVoronoiCell& p1 = *pointIt;
+            ofxVoronoiCell& p2 = *pointIt2;
             drawCone(p1,p1.color);
             drawCone(p2,p1.color);
             drawTent(p1,p2,p1.color);
@@ -129,7 +135,7 @@ void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCellFx> & poly){
     pointIt3++;
     pointIt3++;
 
-    ofColorSPTA color = (*pointIt).color;
+    SPTAColor color = (*pointIt).color;
     bool end = false;
     while(!end){
     //for(; pointIt3 != poly.end();pointIt++,pointIt2++,pointIt3++){
@@ -140,13 +146,13 @@ void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCellFx> & poly){
             end = true;
         }
 
-        ofxVoronoiCellFx& p1 = *pointIt;
-        ofxVoronoiCellFx& p2 = *pointIt2;
-        ofxVoronoiCellFx& p3 = *pointIt3;
+        ofxVoronoiCell& p1 = *pointIt;
+        ofxVoronoiCell& p2 = *pointIt2;
+        ofxVoronoiCell& p3 = *pointIt3;
 
-        ofxVec2f v1 = ofxVec2f(p1.x-p2.x,p1.y-p2.y);
-        ofxVec2f v2 = ofxVec2f(p2.x-p3.x,p2.y-p3.y);
-        ofColorSPTA colorCone = color;
+        ofVec2f v1 = ofVec2f(p1.x-p2.x,p1.y-p2.y);
+        ofVec2f v2 = ofVec2f(p2.x-p3.x,p2.y-p3.y);
+        SPTAColor colorCone = color;
 
         if(skeleton){
             if(v1.angle(v2)<0){
@@ -164,11 +170,11 @@ void ofxVoronoiGL::drawPolygon(std::vector<ofxVoronoiCellFx> & poly){
     }
 }
 
-void ofxVoronoiGL::drawTent(ofxVoronoiCellFx p1, ofxVoronoiCellFx p2, ofColor &color){
+void ofxVoronoiGL::drawTent(ofxVoronoiCell p1, ofxVoronoiCell p2, ofColor &color){
     //vector between p1 and p2 => p1-p2
     ofPoint p1p2 = ofPoint(p1.x-p2.x,p1.y-p2.y);
-    ofxVec2f norm1 = ofxVec2f(-p1p2.y,p1p2.x);
-    ofxVec2f norm2 = ofxVec2f(p1p2.y,-p1p2.x);
+    ofVec2f norm1 = ofVec2f(-p1p2.y,p1p2.x);
+    ofVec2f norm2 = ofVec2f(p1p2.y,-p1p2.x);
     norm1.normalize();
     norm2.normalize();
     norm1 *= R;
