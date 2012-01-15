@@ -1,6 +1,5 @@
-#include "ofxOpenCv.h"
-
 #pragma once
+#include "ofMain.h"
 
 class SPTAColor : public ofColor{
 public:
@@ -55,6 +54,10 @@ public:
 	unsigned char * getFBOPixels(){
 		fbo.readToPixels(pixels);
 		return pixels.getPixels();
+	}
+
+	ofFbo & getFbo(){
+		return fbo;
 	}
 
 	void clear();
