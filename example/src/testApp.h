@@ -2,7 +2,6 @@
 #define _TEST_APP
 
 #include "ofMain.h"
-#include "ofxOpenCv.h"
 #include "ofxVoronoiGL.h"
 
 class testApp : public ofBaseApp{
