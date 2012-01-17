@@ -46,13 +46,13 @@ public:
 
 	void drawOnScreen(int x=0,int y=0);
 
-	void drawFBOOnScreen(int x,int y){
+	void drawFboOnScreen(int x,int y){
 		fbo.draw(x,y);
 	}
 
 	//Attention, possible loss of Performance when used! //TODO single warning when used first!
-	unsigned char * getFBOPixels(){
-		fbo.readToPixels(pixels);
+	unsigned char * getFBOPixels(int attachmentPoint=0){
+		fbo.readToPixels(pixels,attachmentPoint);
 		return pixels.getPixels();
 	}
 

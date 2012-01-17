@@ -5,7 +5,14 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	height = _height;
 	error = _error;
 
-	fbo.allocate(width,height,GL_RGB,1);
+	ofFbo::Settings fboSettings;
+	fboSettings.width = width;
+	fboSettings.height = height;
+	fboSettings.internalformat = GL_RGB;
+	fboSettings.numSamples = 0;
+	fboSettings.useDepth = true;
+	fboSettings.numColorbuffers = 2; //an extra texture for the depthbuffer
+	fbo.allocate(fboSettings); //-> use MSAA
 
 	R = sqrt(width*width + height*height);
 	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
@@ -85,7 +92,7 @@ void ofxVoronoiGL::drawCone(int peakX, int peakY, ofColor &color){
     ofSetColor(color.r,color.g,color.b);
 
     glPushMatrix();
-    glTranslatef(peakX, peakY, 0);
+    glTranslatef(peakX, peakY,0);
 
     glBegin(GL_TRIANGLES);
     for(int i=0;i<steps;i++){

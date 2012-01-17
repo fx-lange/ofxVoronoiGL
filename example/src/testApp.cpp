@@ -44,7 +44,7 @@ void testApp::draw(){
 
     ofSetColor(255,255,255);
 
-    voronoi.drawFBOOnScreen(ofGetWidth()-width,0);
+    voronoi.drawFboOnScreen(ofGetWidth()-width,0);
 
     ofSetColor(255,255,255);
     ofDrawBitmapString(msg,ofGetWidth()-width/2,height+50);
