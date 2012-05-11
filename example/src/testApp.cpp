@@ -8,17 +8,21 @@ void testApp::setup(){
     height = 500;
     drawEnabled = first = true;
 
+
     voronoi.setup(width,height,1.f);
+    coneResolution = voronoi.getConeResolution();
 
     red = 0;
-
-    msg = "SPACE -> enable drawing\np -> set voronoi center\nl -> set polygon vertices\ne -> finish polygon\nf -> toggle perFeatureMode\nc -> clear\n"
-    		"\nto understand the idea behind \nthe algorithm just drag the \nmouse and press SPACE \nto enable drawing again";
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
     voronoi.update();
+
+    msg = "SPACE -> enable drawing\np -> set voronoi center\nl -> set polygon vertices\ne -> finish polygon\nf -> toggle perFeatureMode\nc -> clear\n";
+   msg += "\n+/- -> triangles Per Cone " + ofToString(voronoi.getConeResolution());
+   msg += "\nto understand the idea behind \nthe algorithm just drag the \nmouse and press SPACE \nto enable drawing again";
+
 }
 
 //--------------------------------------------------------------
@@ -63,11 +67,11 @@ void testApp::keyPressed(int key){
     }else if(key=='c'){
         voronoi.clear();
     }else if(key=='+'){
-    	voronoi.alpha +=1.0;
-        voronoi.alpha = (voronoi.alpha>360)?360:voronoi.alpha;
+    	coneResolution +=3;
+        voronoi.setConeResolution(coneResolution);
     }else if(key=='-'){
-    	voronoi.alpha-=1.0;
-        voronoi.alpha = (voronoi.alpha<0)?0:voronoi.alpha;
+    	coneResolution -=3;
+        voronoi.setConeResolution(coneResolution);
     }else if(key=='f'){
     	voronoi.setPerFeatureVD(!voronoi.isPerFeatureVD());
     }

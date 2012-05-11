@@ -88,7 +88,7 @@ public:
 		recreateMesh();
 	}
 
-	void getConeResolution(){
+	int getConeResolution(){
 		return steps;
 	}
 

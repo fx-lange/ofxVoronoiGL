@@ -16,8 +16,8 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	fbo.allocate(fboSettings);
 
 	R = sqrt(width*width + height*height);
-	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
-	steps = (int)(360.f / 3.f)+1;
+	//TODO musst be calculated by 360 / (2cos⁽⁻¹⁾(R-E / R))
+	steps = 60;
 	alphaUse = 360.f / (float)steps;
 	skeleton = perFeatureV = false;
 

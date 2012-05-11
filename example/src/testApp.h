@@ -32,6 +32,7 @@ class testApp : public ofBaseApp{
         int red;
 
         ofxVoronoiGL voronoi;
+        int coneResolution;
         vector<ofPoint> pointsTemp;
 
         string msg;
