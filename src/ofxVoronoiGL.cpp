@@ -17,9 +17,9 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 
 	R = sqrt(width*width + height*height);
 	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
-	alpha = 3;
-	steps = (int)(360.f / alpha)+1;
+	steps = (int)(360.f / 3.f)+1;
 	alphaUse = 360.f / (float)steps;
+	skeleton = perFeatureV = false;
 
 	cam.enableOrtho();
 	cam.move(0,0,10);
@@ -64,6 +64,7 @@ void ofxVoronoiGL::clear(){
         fbo.begin();
         ofClear(0);
         fbo.end();
+        vboMesh.clear();
 	}
 
 
@@ -83,7 +84,7 @@ void ofxVoronoiGL::createVoronoi(){
 		glDisable(GL_DEPTH_TEST); //REVISIT instead of enable and disable -> popStyle
 	}
 
-// not OepnGl ES compatible
+// not OpenGl ES compatible
 
 //void ofxVoronoiGL::drawCone(int peakX, int peakY, ofColor &color){
 //    ofSetColor(color.r,color.g,color.b);

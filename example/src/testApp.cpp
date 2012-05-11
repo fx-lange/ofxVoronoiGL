@@ -9,8 +9,6 @@ void testApp::setup(){
     drawEnabled = first = true;
 
     voronoi.setup(width,height,1.f);
-    voronoi.drawCenters = true;
-    voronoi.skeleton = voronoi.perFeatureV = false;
 
     red = 0;
 
@@ -71,9 +69,7 @@ void testApp::keyPressed(int key){
     	voronoi.alpha-=1.0;
         voronoi.alpha = (voronoi.alpha<0)?0:voronoi.alpha;
     }else if(key=='f'){
-    	voronoi.perFeatureV = !voronoi.perFeatureV;
-    }else if(key=='d'){
-    	voronoi.drawCenters = !voronoi.drawCenters;
+    	voronoi.setPerFeatureVD(!voronoi.isPerFeatureVD());
     }
     if(drawEnabled){
         if(key=='p'){

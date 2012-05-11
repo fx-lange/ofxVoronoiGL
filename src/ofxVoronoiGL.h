@@ -44,10 +44,52 @@ public:
 
 	void update();
 
-	void drawOnScreen(int x=0,int y=0);
+	void drawOnScreen(int x=0,int y=0); //TODO rename
 
-	void drawFboOnScreen(int x,int y){
+	void drawFboOnScreen(int x,int y){ //TODO rename
 		fbo.draw(x,y);
+	}
+
+	void setPerFeatureVD(bool _perFeature){
+		if(perFeatureV == _perFeature)
+			return;
+
+		perFeatureV = _perFeature;
+		recreateMesh();
+	}
+
+	bool isPerFeatureVD(){
+		return perFeatureV;
+	}
+
+	void setSkeletonMode(bool _skeleton){
+		if(skeleton == _skeleton)
+			return;
+
+		skeleton = _skeleton;
+		if(skeleton){
+			perFeatureV = false;
+		}
+
+		recreateMesh();
+	}
+
+	bool isSkeletonMode(){
+		return skeleton;
+	}
+
+	void setConeResolution(int trianglePerCone){
+		if(steps == trianglePerCone || trianglePerCone < 3)
+			return;
+
+		steps = trianglePerCone;
+		alphaUse = 360.f / (float)steps;
+
+		recreateMesh();
+	}
+
+	void getConeResolution(){
+		return steps;
 	}
 
 	//Attention, possible loss of Performance when used! //TODO single warning when used first!
@@ -66,9 +108,6 @@ public:
 	void setPoint(ofPoint & p);
 	void setPolygon(std::vector<ofPoint> & points);
 
-	float alpha;
-	bool drawPoly,perFeatureV,skeleton,drawCenters;//TODO check which is still used - rename!
-
 protected:
 	ofFbo fbo;
 	ofPixels pixels;
@@ -82,14 +121,14 @@ protected:
 
 	float width,height;
 	float alphaUse, R, error;
+	bool perFeatureV,skeleton,drawCenters;//TODO check which is still used - rename!
 
 	int steps;
 
 	void createVoronoi();
 
 	void createConeMesh(int peakX, int peakY, ofColor &color){
-		steps = (int)(360.f / alpha)+1;
-		alphaUse = 360.f / (float)steps;
+
 	    for(int i=0;i<steps;i++){
 	    	vboMesh.addVertex(ofVec3f(peakX,peakY,0));
 	        float x = R * sin(alphaUse*i*PI/180);
@@ -222,7 +261,25 @@ protected:
 	    }
 	}
 
-// not OepnGl ES compatible
+	void recreateMesh(){
+		vboMesh.clear();
+
+		//draw points
+		std::vector<VoronoiCell>::iterator pointIt;
+		for(pointIt = points.begin(); pointIt!=points.end();pointIt++){
+			VoronoiCell& p = *pointIt;
+			createConeMesh(p,p.color);
+		}
+
+		//draw polygons
+		std::vector<std::vector<VoronoiCell> >::iterator polyIt;
+		for(polyIt = polygons.begin();polyIt!=polygons.end();polyIt++){
+			std::vector<VoronoiCell>& poly = *polyIt;
+			createPolygonMesh(poly);
+		}
+	}
+
+// not OpenGl ES compatible
 
 //	void drawCone(int x, int y, ofColor& color);
 //	void drawCone(VoronoiCell p, ofColor& color){
