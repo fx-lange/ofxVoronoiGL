@@ -86,6 +86,7 @@ protected:
 	int steps;
 
 	void createVoronoi();
+
 	void createConeMesh(int peakX, int peakY, ofColor &color){
 		steps = (int)(360.f / alpha)+1;
 		alphaUse = 360.f / (float)steps;
@@ -103,10 +104,130 @@ protected:
 	    }
 	}
 
-	void drawCone(int x, int y, ofColor& color);
-	void drawCone(VoronoiCell p, ofColor& color){
-		drawCone(p.x,p.y,color);
+	void createConeMesh(VoronoiCell p, ofColor& color){
+		createConeMesh(p.x,p.y,color);
 	}
-	void drawTent(VoronoiCell p1, VoronoiCell p2, ofColor& color);
-	void drawPolygon(std::vector<VoronoiCell> & poly);
+
+	void createTentMesh(VoronoiCell p1, VoronoiCell p2, ofColor &color){
+	    //vector between p1 and p2 => p1-p2
+	    ofPoint p1p2 = ofPoint(p1.x-p2.x,p1.y-p2.y);
+	    ofVec2f norm1 = ofVec2f(-p1p2.y,p1p2.x);
+	    ofVec2f norm2 = ofVec2f(p1p2.y,-p1p2.x);
+	    norm1.normalize();
+	    norm2.normalize();
+	    norm1 *= R;
+	    norm2 *= R;
+
+	    ofPoint pn1 = norm1;
+	    ofPoint pn2 = norm2;
+
+	    ofColor colorToUse = color;
+	    if(perFeatureV){
+	    	colorToUse.set(255-p1.color.r,255-p1.color.g,255-p1.color.b);
+	    }
+	    vboMesh.addVertex(ofVec3f(p1.x,p1.y,0));
+	    vboMesh.addVertex(ofVec3f(p2.x,p2.y,0));
+	    vboMesh.addVertex(ofVec3f(p2.x + pn1.x ,p2.y + pn1.y ,-R));
+
+	    vboMesh.addVertex(ofVec3f(p2.x + pn1.x ,p2.y + pn1.y ,-R));
+	    vboMesh.addVertex(ofVec3f(p1.x + pn1.x ,p1.y + pn1.y ,-R));
+	    vboMesh.addVertex(ofVec3f(p1.x,p1.y,0));
+	    for(int i=0;i<6;++i){
+	    	vboMesh.addColor(colorToUse);
+	    }
+
+	    if(skeleton){
+	    	colorToUse.set(0,0,0);
+	    }
+
+		vboMesh.addVertex(ofVec3f(p1.x,p1.y,0));
+		vboMesh.addVertex(ofVec3f(p2.x,p2.y,0));
+		vboMesh.addVertex(ofVec3f(p2.x + pn2.x ,p2.y + pn2.y ,-R));
+
+		vboMesh.addVertex(ofVec3f(p2.x + pn2.x ,p2.y + pn2.y ,-R));
+		vboMesh.addVertex(ofVec3f(p1.x + pn2.x ,p1.y + pn2.y ,-R));
+		vboMesh.addVertex(ofVec3f(p1.x,p1.y,0));
+
+		for(int i=0;i<6;++i){
+			vboMesh.addColor(colorToUse);
+		}
+
+//	    if(drawCenters){
+//	        ofSetColor(0,0,0);
+//	        ofLine(p1.x,p1.y,p2.x,p2.y);
+//	    }
+	}
+
+	void createPolygonMesh(std::vector<VoronoiCell> & poly){
+	    std::vector<VoronoiCell>::iterator pointIt;
+	    std::vector<VoronoiCell>::iterator pointIt2;
+	    std::vector<VoronoiCell>::iterator pointIt3;
+
+	    //spezial cases
+	    if(poly.size()<3){
+	        if(poly.size() == 1){
+	            pointIt = poly.begin();
+	            VoronoiCell& p = *pointIt;
+	            createConeMesh(p,p.color);
+	        }else if(poly.size() == 2){
+	            pointIt = poly.begin();
+	            pointIt2 = poly.begin();
+	            VoronoiCell& p1 = *pointIt;
+	            VoronoiCell& p2 = *pointIt2;
+	            createConeMesh(p1,p1.color);
+	            createConeMesh(p2,p1.color);
+	            createTentMesh(p1,p2,p1.color);
+	        }
+	    }
+
+	    pointIt = poly.begin();
+	    pointIt2 = poly.begin();
+	    pointIt3 = poly.begin();
+	    pointIt2++;
+	    pointIt3++;
+	    pointIt3++;
+
+	    SPTAColor color = (*pointIt).color;
+	    bool end = false;
+	    while(!end){
+	    //for(; pointIt3 != poly.end();pointIt++,pointIt2++,pointIt3++){
+	        if(pointIt3 == poly.end()){
+	            pointIt3 = poly.begin();
+	        }else if(pointIt2 == poly.end()){
+	            pointIt2 = poly.begin();
+	            end = true;
+	        }
+
+	        VoronoiCell& p1 = *pointIt;
+	        VoronoiCell& p2 = *pointIt2;
+	        VoronoiCell& p3 = *pointIt3;
+
+	        ofVec2f v1 = ofVec2f(p1.x-p2.x,p1.y-p2.y);
+	        ofVec2f v2 = ofVec2f(p2.x-p3.x,p2.y-p3.y);
+	        SPTAColor colorCone = color;
+
+	        if(skeleton){
+	            if(v1.angle(v2)<0){
+	                colorCone.set(0,0,0); //TODO use alpha channel?!
+	                color = p2.color;
+	            }
+	        }else if(perFeatureV){
+	            colorCone = p2.color;
+	        }
+
+	        createConeMesh(p2,colorCone);
+	        createTentMesh(p2,p3,color);
+
+	        pointIt++,pointIt2++,pointIt3++;
+	    }
+	}
+
+// not OepnGl ES compatible
+
+//	void drawCone(int x, int y, ofColor& color);
+//	void drawCone(VoronoiCell p, ofColor& color){
+//		drawCone(p.x,p.y,color);
+//	}
+//	void drawTent(VoronoiCell p1, VoronoiCell p2, ofColor& color);
+//	void drawPolygon(std::vector<VoronoiCell> & poly);
 };
