@@ -73,6 +73,8 @@ protected:
 	ofFbo fbo;
 	ofPixels pixels;
 
+	ofVboMesh vboMesh;
+
 	ofCamera cam;
 
 	std::vector<VoronoiCell> points;
@@ -84,6 +86,22 @@ protected:
 	int steps;
 
 	void createVoronoi();
+	void createConeMesh(int peakX, int peakY, ofColor &color){
+		steps = (int)(360.f / alpha)+1;
+		alphaUse = 360.f / (float)steps;
+	    for(int i=0;i<steps;i++){
+	    	vboMesh.addVertex(ofVec3f(peakX,peakY,0));
+	        float x = R * sin(alphaUse*i*PI/180);
+	        float y = R * cos(alphaUse*i*PI/180);
+	        vboMesh.addVertex(ofVec3f(peakX+x,peakY+y,-R));
+	        x = R * sin(alphaUse*(i+1)*PI/180);
+	        y = R * cos(alphaUse*(i+1)*PI/180);
+	        vboMesh.addVertex(ofVec3f(peakX+x,peakY+y,-R));
+	        for(int j=0;j<3;++j){
+	        	vboMesh.addColor(color);
+	        }
+	    }
+	}
 
 	void drawCone(int x, int y, ofColor& color);
 	void drawCone(VoronoiCell p, ofColor& color){

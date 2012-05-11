@@ -11,8 +11,9 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	fboSettings.internalformat = GL_RGB;
 	fboSettings.numSamples = 0;
 	fboSettings.useDepth = true;
-	fboSettings.numColorbuffers = 2; //an extra texture for the depthbuffer
-	fbo.allocate(fboSettings); //-> use MSAA
+	fboSettings.depthAsTexture = true;
+//	fboSettings.numColorbuffers = 2; //an extra texture for the depthbuffer
+	fbo.allocate(fboSettings);
 
 	R = sqrt(width*width + height*height);
 	//TODO musst be calculate by 2cos⁽⁻¹⁾(R-E / R)
@@ -22,10 +23,15 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 
 	cam.enableOrtho();
 	cam.move(0,0,10);
+	cam.setFarClip(400);//TODO should be set depended to width and height
+
+	vboMesh.setMode(OF_PRIMITIVE_TRIANGLES);
 }
 
 void ofxVoronoiGL::setPoint(int x,int y){
-	 points.push_back(VoronoiCell(x,y,SPTAColor()));
+	SPTAColor sc = SPTAColor();
+	 points.push_back(VoronoiCell(x,y,sc));
+	 createConeMesh( x,  y, sc);
 }
 
 void ofxVoronoiGL::setPoint(ofPoint & p){
@@ -69,21 +75,22 @@ void ofxVoronoiGL::drawOnScreen(int x,int y){
 
 void ofxVoronoiGL::createVoronoi(){
 		glEnable(GL_DEPTH_TEST);
-		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL );
 
-		//draw points
-		std::vector<VoronoiCell>::iterator pointIt;
-		for(pointIt = points.begin(); pointIt!=points.end();pointIt++){
-			VoronoiCell& p = *pointIt;
-			drawCone(p,p.color);
-		}
-
-		//draw polygons
-		std::vector<std::vector<VoronoiCell> >::iterator polyIt;
-		for(polyIt = polygons.begin();polyIt!=polygons.end();polyIt++){
-			std::vector<VoronoiCell>& poly = *polyIt;
-			drawPolygon(poly);
-		}
+//		//draw points
+//		std::vector<VoronoiCell>::iterator pointIt;
+//		for(pointIt = points.begin(); pointIt!=points.end();pointIt++){
+//			VoronoiCell& p = *pointIt;
+//			drawCone(p,p.color);
+//		}
+//
+//		//draw polygons
+//		std::vector<std::vector<VoronoiCell> >::iterator polyIt;
+//		for(polyIt = polygons.begin();polyIt!=polygons.end();polyIt++){
+//			std::vector<VoronoiCell>& poly = *polyIt;
+//			drawPolygon(poly);
+//		}
+		vboMesh.draw();
 
 		glDisable(GL_DEPTH_TEST); //REVISIT instead of enable and disable -> popStyle
 	}
@@ -165,7 +172,7 @@ void ofxVoronoiGL::drawPolygon(std::vector<VoronoiCell> & poly){
 
         if(skeleton){
             if(v1.angle(v2)<0){
-                colorCone.set(0,0,0);
+                colorCone.set(0,0,0); //TODO use alpha channel?!
                 color = p2.color;
             }
         }else if(perFeatureV){
@@ -197,11 +204,14 @@ void ofxVoronoiGL::drawTent(VoronoiCell p1, VoronoiCell p2, ofColor &color){
     }else{
         ofSetColor(color.r,color.g,color.b);
     }
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLES);
     glVertex3f(p1.x,p1.y,0);
     glVertex3f(p2.x,p2.y,0);
     glVertex3f(p2.x + pn1.x ,p2.y + pn1.y ,-R);
+
+    glVertex3f(p2.x + pn1.x ,p2.y + pn1.y ,-R);
     glVertex3f(p1.x + pn1.x ,p1.y + pn1.y ,-R);
+    glVertex3f(p1.x,p1.y,0);
     glEnd();
 
 
