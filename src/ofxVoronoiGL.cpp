@@ -9,9 +9,10 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 	fboSettings.width = width;
 	fboSettings.height = height;
 	fboSettings.internalformat = GL_RGB;
-	fboSettings.numSamples = 0;
+//	fboSettings.numSamples = 0;
 	fboSettings.useDepth = true;
-	fboSettings.depthAsTexture = true;
+	fboSettings.useStencil = true;
+	fboSettings.depthStencilAsTexture = true;
 //	fboSettings.numColorbuffers = 2; //an extra texture for the depthbuffer
 	fbo.allocate(fboSettings);
 
