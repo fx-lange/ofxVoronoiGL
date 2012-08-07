@@ -69,13 +69,6 @@ void ofxVoronoiGL::clear(){
 	}
 
 
-void ofxVoronoiGL::drawOnScreen(int x,int y){
-	ofPushMatrix();
-	ofTranslate(x,y);
-	createVoronoi();
-	ofPopMatrix();
-}
-
 void ofxVoronoiGL::createVoronoi(){
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL );

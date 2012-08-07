@@ -44,9 +44,7 @@ public:
 
 	void update();
 
-	void drawOnScreen(int x=0,int y=0); //TODO rename
-
-	void drawFboOnScreen(int x,int y){ //TODO rename
+	void drawFboOnScreen(int x = 0,int y = 0){ //TODO rename
 		fbo.draw(x,y);
 	}
 

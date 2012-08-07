@@ -35,7 +35,7 @@ void testApp::draw(){
     ofRotateY(rotateX);
     ofTranslate(-width/2.0,-height/2.0);
 
-    voronoi.drawOnScreen();
+    voronoi.createVoronoi();
 
     //draw rect
 	ofNoFill();
