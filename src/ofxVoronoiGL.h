@@ -65,9 +65,6 @@ public:
 			return;
 
 		skeleton = _skeleton;
-		if(skeleton){
-			perFeatureV = false;
-		}
 
 		recreateMesh();
 	}
