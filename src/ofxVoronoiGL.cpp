@@ -24,7 +24,7 @@ void ofxVoronoiGL::setup(int _width, int _height, float _error){
 
 	cam.enableOrtho();
 	cam.move(0,0,10);
-	cam.setFarClip(400);//TODO should be set depended to width and height
+	cam.setFarClip(300);//TODO should be set depended to width and height
 
 	vboMesh.setMode(OF_PRIMITIVE_TRIANGLES);
 }

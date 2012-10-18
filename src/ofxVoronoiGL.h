@@ -103,13 +103,17 @@ public:
 	void setPoint(ofPoint & p);
 	void setPolygon(std::vector<ofPoint> & points);
 
+
+	void setFarClip(float val){
+		cam.setFarClip(val);
+	}
 protected:
+	ofCamera cam;
 	ofFbo fbo;
 	ofPixels pixels;
 
 	ofVboMesh vboMesh;
 
-	ofCamera cam;
 
 	std::vector<VoronoiCell> points;
 	std::vector<std::vector<VoronoiCell> > polygons;
